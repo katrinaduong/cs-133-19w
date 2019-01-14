@@ -1,13 +1,13 @@
 CXXFLAGS = -std=c++11 -O3 -fopenmp \
 					 -fno-loop-interchange -fno-loop-unroll-and-jam -march=native
 
-SRCS = gemm.h gemm.cpp omp.cpp omp-blocked.cpp gemm-baseline.o
+SRCS = gemm.h gemm.cpp omp.cpp omp-blocked.cpp gemm-baseline.a
 
 test: gemm
-	./$^ omp omp-blocked
+	./$^ parallel parallel-blocked
 
 gemm: $(SRCS)
-	$(CXX) $(CXXFLAGS) -o $@ $(filter %.cpp %.o, $^)
+	$(CXX) $(CXXFLAGS) -o $@ $(filter %.cpp %.a, $^)
 
 clang-tidy: $(SRCS)
 	clang-tidy $(filter %.cpp, $^) -- -Wall

@@ -66,16 +66,20 @@ int main(int argc, char** argv) {
   static float a[kI][kK];
   static float b[kK][kJ];
   static float c_base[kI][kJ];
-  static float c_par[kI][kJ];
+  static float c[kI][kJ];
 
-  bool omp = false;
-  bool omp_blocked = false;
+  bool sequential = false;
+  bool parallel = false;
+  bool parallel_blocked = false;
   for (int i = 0; i < argc; ++i) {
-    if (strcmp(argv[i], "omp") == 0) {
-      omp = true;
+    if (strcmp(argv[i], "sequential") == 0) {
+      sequential = true;
     }
-    if (strcmp(argv[i], "omp-blocked") == 0) {
-      omp_blocked = true;
+    if (strcmp(argv[i], "parallel") == 0) {
+      parallel = true;
+    }
+    if (strcmp(argv[i], "parallel-blocked") == 0) {
+      parallel_blocked = true;
     }
   }
 
@@ -99,19 +103,28 @@ int main(int argc, char** argv) {
 
   GemmBaseline(a, b, c_base);
 
+  if (sequential) {
+    clog << "\nRun sequential GEMM with OpenMP\n";
+    Benchmark(&GemmSequential, a, b, c);
+    if (Diff(c_base, c) != 0) {
+      clog << "Baseline failed\n";
+      return 2;
+    }
+  }
+
   bool fail = false;
-  if (omp) {
+  if (parallel) {
     clog << "\nRun parallel GEMM with OpenMP\n";
-    Benchmark(&GemmParallel, a, b, c_par);
-    if (Diff(c_base, c_par) != 0) {
+    Benchmark(&GemmParallel, a, b, c);
+    if (Diff(c_base, c) != 0) {
       fail = true;
     }
   }
 
-  if (omp_blocked) {
+  if (parallel_blocked) {
     clog << "\nRun blocked parallel GEMM with OpenMP\n";
-    Benchmark(&GemmParallelBlocked, a, b, c_par);
-    if (Diff(c_base, c_par) != 0) {
+    Benchmark(&GemmParallelBlocked, a, b, c);
+    if (Diff(c_base, c) != 0) {
       fail = true;
     }
   }
