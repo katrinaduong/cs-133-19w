@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <vector>
 
 #include "gemm.h"
 
@@ -11,9 +12,30 @@ using std::chrono::microseconds;
 using std::chrono::steady_clock;
 using std::clog;
 using std::endl;
+using std::vector;
 
+void GemmBaseline(const vector<vector<float>>& a,
+                  const vector<vector<float>>& b,
+                  vector<vector<float>>* c);
 void GemmBaseline(const float a[kI][kK], const float b[kK][kJ],
-                  float c[kI][kJ]);
+                  float c[kI][kJ]) {
+  vector<vector<float>> a_vec(kI);
+  vector<vector<float>> b_vec(kK);
+  vector<vector<float>> c_vec(kI);
+  for (int i = 0; i < kI; ++i) {
+    a_vec[i].resize(kK);
+    c_vec[i].resize(kJ);
+    std::memcpy(a_vec[i].data(), a[i], sizeof(float) * kK);
+  }
+  for (int k = 0; k < kK; ++k) {
+    b_vec[k].resize(kJ);
+    std::memcpy(b_vec[k].data(), b[k], sizeof(float) * kJ);
+  }
+  GemmBaseline(a_vec, b_vec, &c_vec);
+  for (int i = 0; i < kI; ++i) {
+    std::memcpy(c[i], c_vec[i].data(), sizeof(float) * kJ);
+  }
+}
 void GemmParallel(const float a[kI][kK], const float b[kK][kJ],
                   float c[kI][kJ]);
 void GemmParallelBlocked(const float a[kI][kK], const float b[kK][kJ],
