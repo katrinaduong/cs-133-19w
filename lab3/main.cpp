@@ -1,12 +1,8 @@
-#include <chrono>
 #include <iostream>
 #include <string>
 
 #include "cnn.h"
 
-using std::chrono::duration_cast;
-using std::chrono::microseconds;
-using std::chrono::steady_clock;
 using std::clog;
 using std::endl;
 using std::string;
@@ -27,19 +23,11 @@ int main(int argc, char** argv) {
   LoadData(data_dir, input, weight, bias);
   clog << "Invoke CNN computation kernel\n";
 
-  const auto begin = steady_clock::now();
   if (getenv("SEQUENTIAL")) {
     CnnSequential(input, weight, bias, output);
   } else {
     CnnKernel(input, weight, bias, output);
   }
-  const auto end = steady_clock::now();
-
-  uint64_t run_time_us = duration_cast<microseconds>(end - begin).count();
-  float gflops = float(kNum) * kNum * kImSize * kImSize * kKernel * kKernel * 2
-                 / (run_time_us * 1e3);
-  clog << "Time: " << run_time_us * 1e-6 << " s\n";
-  clog << "Perf: " << gflops << " GFlops\n";
 
   int error = Verify(data_dir, output);
   if (error != 0) {

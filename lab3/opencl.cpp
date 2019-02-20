@@ -11,6 +11,7 @@
 
 #include <cstdlib>
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -21,6 +22,9 @@
 
 #include "cnn.h"
 
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
+using std::chrono::steady_clock;
 using std::clog;
 using std::endl;
 using std::istream_iterator;
@@ -264,6 +268,7 @@ void CnnKernel(
   }
 
   // Execute kernel.
+  const auto begin = steady_clock::now();
   vector<cl::Event> compute_event(1);
   vector<cl::Event> write_event(1);
   CL_CHECK(cmd.enqueueMigrateMemObjects(
@@ -274,6 +279,13 @@ void CnnKernel(
       cl_buf_out, CL_MIGRATE_MEM_OBJECT_HOST, &compute_event, nullptr));
   CL_CHECK(cmd.flush());
   CL_CHECK(cmd.finish());
+  const auto end = steady_clock::now();
+
+  uint64_t run_time_us = duration_cast<microseconds>(end - begin).count();
+  float gflops = float(kNum) * kNum * kImSize * kImSize * kKernel * kKernel * 2
+                 / (run_time_us * 1e3);
+  clog << "Time: " << run_time_us * 1e-6 << " s\n";
+  clog << "Perf: " << gflops << " GFlops\n";
 }
 
 void VaddKernel(const float* a, const float* b, float* c, uint64_t n) {
