@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo apt update
-sudo env DEBIAN_FRONTEND=noninteractive apt install aria2 opencl-headers -y
+sudo env DEBIAN_FRONTEND=noninteractive apt install aria2 opencl-headers build-essential -y
 tmp=$(mktemp -d)
 pushd "$tmp"
 aria2c -x16 -c http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13793/l_opencl_p_18.1.0.013.tgz
