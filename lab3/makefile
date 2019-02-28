@@ -23,4 +23,5 @@ vadd: opencl.cpp vadd.cpp
 
 include ../makefile
 
+CXXFLAGS := $(subst -march=native,,$(CXXFLAGS))
 LDFLAGS += -lOpenCL
