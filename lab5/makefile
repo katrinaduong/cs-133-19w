@@ -26,11 +26,8 @@ export OPENCL_PLATFORM = Xilinx
 export OPENCL_DEVICE = $(DSA)
 export OPENCL_BINARY = cnn.$(TARGET).$(DSA).xclbin
 
-test: cnn $(OPENCL_SOURCE) cnn.$(TARGET).$(DSA).xclbin
+dontrunme: cnn $(OPENCL_SOURCE) cnn.$(TARGET).$(DSA).xclbin
 	. ./params.sh; ./$<
-
-test-seq:
-	@$(MAKE) --no-print-directory test SEQUENTIAL=
 
 cnn: $(SRCS)
 	$(CXX) $(CXXFLAGS) -o $@ $(filter %.cpp %.a %.o, $^) $(LDFLAGS)
@@ -41,10 +38,10 @@ CXXFLAGS := $(subst -fno-loop-unroll-and-jam,,$(subst -march=native,,$(CXXFLAGS)
 LDFLAGS += -lOpenCL
 
 swsim: emconfig
-	XCL_EMULATION_MODE=sw_emu $(MAKE) TARGET=sw_emu test
+	XCL_EMULATION_MODE=sw_emu $(MAKE) TARGET=sw_emu dontrunme
 
 hwsim: emconfig
-	XCL_EMULATION_MODE=hw_emu $(MAKE) TARGET=hw_emu test
+	XCL_EMULATION_MODE=hw_emu $(MAKE) TARGET=hw_emu dontrunme
 
 hls:
 	$(MAKE) TARGET=hw cnn.hw.$(DSA).xo
