@@ -27,8 +27,8 @@ void CnnKernel(__constant float* input, __constant float* weight,
 
 //input load loop
 //load_in:
+//  __attribute__((xcl_pipeline_loop))
 //  for (int w = 0; w < kInImSize; w ++) {
-//    __attribute__((xcl_pipeline_loop))
 //    for (int q = 0; q < kKernel; ++q) { //make kKernel copy of input(j,h,w)
 //      input_buf[h][w - q + kKernel - 1][q] = input(j, h, w);
 //    }
